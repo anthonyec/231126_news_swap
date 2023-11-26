@@ -12,4 +12,3 @@ Prototyping an idea from [Zdenek](https://github.com/zdenekhynek).
 npm ci
 npm run dev
 ```
-
