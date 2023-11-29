@@ -3,6 +3,7 @@ import { serve } from "@hono/node-server";
 
 import { sites } from "./sites";
 import { fetchDocument } from "./fetch_document";
+import { getSiteArticles, swapArticle } from "./articles";
 
 const app = new Hono();
 
@@ -20,21 +21,19 @@ app.get("/swap/:source/:destination", async (context) => {
   const sourceDocument = await fetchDocument(sourceSite.url);
   const destinationDocument = await fetchDocument(destinationSite.url);
 
-  const sourceTitles = sourceDocument.querySelectorAll(
-    sourceSite.headlineSelector,
-  );
-  const destinationTitles = destinationDocument.querySelectorAll(
-    destinationSite.headlineSelector,
+  // parse both documents
+  const sourceArticles = getSiteArticles(sourceSite, sourceDocument);
+  const destinationArticles = getSiteArticles(
+    destinationSite,
+    destinationDocument,
   );
 
-  // TODO: Do something smarter here.
-  destinationTitles.forEach((destinationTitle, index) => {
-    if (!sourceTitles[index]) return;
-    destinationTitle.textContent = sourceTitles[index].textContent;
+  destinationArticles.forEach((destArticle, index) => {
+    swapArticle(destArticle, sourceArticles[index]);
   });
 
   console.log(
-    `Swapping ${destinationTitles.length} ${destinationSite.title} titles with ${sourceTitles.length} ${sourceSite.title} titless`,
+    `Swapping ${destinationArticles.length} ${destinationSite.title} titles with ${sourceArticles.length} ${sourceSite.title} titless`,
   );
 
   return context.html(destinationDocument.outerHTML);
