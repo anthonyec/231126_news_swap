@@ -4,7 +4,7 @@ export interface Site {
   url: string;
   articleSelector: string;
   headlineSelector: string;
-  copySelector?: string;
+  bodySelector?: string;
   imageSelector?: string;
 }
 
@@ -20,17 +20,20 @@ export const sites: Site[] = [
     id: "bbc",
     title: "BBC News",
     url: "https://www.bbc.co.uk/news",
-    articleSelector: `[data-entityid="container-top-stories#1"]`,
+    articleSelector: `[data-entityid^="container-top-stories"]`,
     headlineSelector: "h3",
-    copySelector: "",
+    bodySelector: "p",
+    imageSelector: "img",
   },
   {
     // TODO: Layout very broken.
     id: "dailymail",
     title: "Daily Mail", // TODO: Should this be called Mail Online?
     url: "https://www.dailymail.co.uk/home/index.html",
-    articleSelector: ``,
+    articleSelector: ".article",
     headlineSelector: "h2",
+    bodySelector: "p",
+    imageSelector: "img",
   },
   {
     id: "guardian",
@@ -38,13 +41,15 @@ export const sites: Site[] = [
     url: "https://www.theguardian.com/uk",
     articleSelector: ``,
     headlineSelector: "h3",
+    bodySelector: "",
   },
   {
     id: "mirror",
     title: "Mirror",
     url: "https://www.mirror.co.uk/",
-    articleSelector: ``,
+    articleSelector: `article`,
     headlineSelector: "h2",
+    imageSelector: "img",
   },
   {
     id: "ft",

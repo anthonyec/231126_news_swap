@@ -5,6 +5,8 @@ import { sites } from "./sites";
 import { fetchDocument } from "./fetch_document";
 import { getSiteArticles, swapArticle } from "./articles";
 
+const PORT = process.env.PORT ? +process.env.PORT : 8787;
+
 const app = new Hono();
 
 app.get("/swap/:source/:destination", async (context) => {
@@ -33,12 +35,12 @@ app.get("/swap/:source/:destination", async (context) => {
   });
 
   console.log(
-    `Swapping ${destinationArticles.length} ${destinationSite.title} titles with ${sourceArticles.length} ${sourceSite.title} titless`,
+    `Swapping ${destinationArticles.length} ${destinationSite.title} titles with ${sourceArticles.length} ${sourceSite.title} titles.`,
   );
 
   return context.html(destinationDocument.outerHTML);
 });
 
-serve(app, (info) => {
-  console.log(`Listening on http://localhost:${info.port}`); // Listening on http://localhost:3000
+serve({ ...app, port: PORT }, (info) => {
+  console.log(`Listening on http://localhost:${info.port}`);
 });
