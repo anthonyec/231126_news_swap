@@ -10,7 +10,12 @@ export interface Article {
   image?: MaybeHTMLElement;
 }
 
-export function swapArticle(destArticle: Article, sourceArticle: Article) {
+export function swapArticle(
+  destArticle: Article,
+  destSite: Site,
+  sourceArticle: Article,
+  sourceSite: Site,
+) {
   if (!destArticle || !sourceArticle) {
     return;
   }
@@ -23,11 +28,23 @@ export function swapArticle(destArticle: Article, sourceArticle: Article) {
     destArticle.body.textContent = sourceArticle.body.textContent;
   }
 
-  if (destArticle.image && sourceArticle.image) {
+  if (
+    destArticle.image &&
+    sourceArticle.image &&
+    destSite.image &&
+    sourceSite.image
+  ) {
     //  TODO: Workout how to swap images reliably
-    const sourceSrc = sourceArticle.image.getAttribute("src");
-    if (sourceSrc) {
-      destArticle.image.setAttribute("src", sourceSrc);
+    const source = sourceSite.image.get
+      ? sourceSite.image.get(sourceArticle.image)
+      : sourceArticle.image.getAttribute("src");
+
+    if (source && source.src && destSite.image && destArticle.image) {
+      if (destSite.image.set) {
+        destSite.image.set(destArticle.image, source);
+      } else {
+        destArticle.image.setAttribute("src", source.src);
+      }
     }
   }
 }
@@ -48,8 +65,8 @@ export function getSiteArticles(site: Site, document: HTMLElement): Article[] {
       if (site.bodySelector) {
         article.body = articleEl.querySelector(site.bodySelector);
       }
-      if (site.imageSelector) {
-        article.image = articleEl.querySelector(site.imageSelector);
+      if (site.image && site.image.selector) {
+        article.image = articleEl.querySelector(site.image.selector);
       }
 
       articles.push(article);

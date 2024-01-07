@@ -24,14 +24,22 @@ app.get("/swap/:source/:destination", async (context) => {
   const destinationDocument = await fetchDocument(destinationSite.url);
 
   // parse both documents
-  const sourceArticles = getSiteArticles(sourceSite, sourceDocument);
+  const sourceArticles = getSiteArticles(sourceSite, sourceDocument).slice(
+    0,
+    5,
+  );
   const destinationArticles = getSiteArticles(
     destinationSite,
     destinationDocument,
-  );
+  ).slice(0, 5);
 
   destinationArticles.forEach((destArticle, index) => {
-    swapArticle(destArticle, sourceArticles[index]);
+    swapArticle(
+      destArticle,
+      destinationSite,
+      sourceArticles[index],
+      sourceSite,
+    );
   });
 
   console.log(

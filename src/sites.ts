@@ -1,3 +1,11 @@
+import { HTMLElement } from "node-html-parser";
+
+export interface ContentItemConfig {
+  selector: string;
+  get?: (el: HTMLElement) => any;
+  set?: (el: HTMLElement, source: any) => void;
+}
+
 export interface Site {
   id: string;
   title: string;
@@ -6,6 +14,7 @@ export interface Site {
   headlineSelector: string;
   bodySelector?: string;
   imageSelector?: string;
+  image?: ContentItemConfig;
 }
 
 export const sites: Site[] = [
@@ -23,7 +32,18 @@ export const sites: Site[] = [
     articleSelector: `[data-entityid^="container-top-stories"]`,
     headlineSelector: "h3",
     bodySelector: "p",
-    imageSelector: "img",
+    image: {
+      selector: "img",
+      set: (destEl, source) => {
+        destEl.setAttribute("src", source.src);
+        destEl.setAttribute("data-src", source.src);
+        destEl.setAttribute("srcset", "");
+
+        //  @TODO - try to keep proportions of the image, not working
+        //  being stripped or modified client side
+        destEl.setAttribute("style", "height:auto;");
+      },
+    },
   },
   {
     // TODO: Layout very broken.
@@ -33,7 +53,16 @@ export const sites: Site[] = [
     articleSelector: ".article",
     headlineSelector: "h2",
     bodySelector: "p",
-    imageSelector: "img",
+    image: {
+      selector: "img",
+      get: (el) => {
+        return {
+          src: el.getAttribute("data-src"),
+          width: el.getAttribute("width"),
+          height: el.getAttribute("height"),
+        };
+      },
+    },
   },
   {
     id: "guardian",
