@@ -3,6 +3,9 @@ import { serve } from "@hono/node-server";
 
 import { sites } from "./sites";
 import { fetchDocument } from "./fetch_document";
+import { getSiteArticles, swapArticle } from "./articles";
+
+const PORT = process.env.PORT ? +process.env.PORT : 8787;
 
 const app = new Hono();
 
@@ -20,26 +23,32 @@ app.get("/swap/:source/:destination", async (context) => {
   const sourceDocument = await fetchDocument(sourceSite.url);
   const destinationDocument = await fetchDocument(destinationSite.url);
 
-  const sourceTitles = sourceDocument.querySelectorAll(
-    sourceSite.headlineSelector,
+  // parse both documents
+  const sourceArticles = getSiteArticles(sourceSite, sourceDocument).slice(
+    0,
+    5,
   );
-  const destinationTitles = destinationDocument.querySelectorAll(
-    destinationSite.headlineSelector,
-  );
+  const destinationArticles = getSiteArticles(
+    destinationSite,
+    destinationDocument,
+  ).slice(0, 5);
 
-  // TODO: Do something smarter here.
-  destinationTitles.forEach((destinationTitle, index) => {
-    if (!sourceTitles[index]) return;
-    destinationTitle.textContent = sourceTitles[index].textContent;
+  destinationArticles.forEach((destArticle, index) => {
+    swapArticle(
+      destArticle,
+      destinationSite,
+      sourceArticles[index],
+      sourceSite,
+    );
   });
 
   console.log(
-    `Swapping ${destinationTitles.length} ${destinationSite.title} titles with ${sourceTitles.length} ${sourceSite.title} titless`,
+    `Swapping ${destinationArticles.length} ${destinationSite.title} titles with ${sourceArticles.length} ${sourceSite.title} titles.`,
   );
 
   return context.html(destinationDocument.outerHTML);
 });
 
-serve(app, (info) => {
-  console.log(`Listening on http://localhost:${info.port}`); // Listening on http://localhost:3000
+serve({ ...app, port: PORT }, (info) => {
+  console.log(`Listening on http://localhost:${info.port}`);
 });
